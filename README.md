@@ -1,6 +1,10 @@
 # jsharmony-cms-host
 jsHarmony CMS Host
 
+## Prerequisites
+
+* Node.js
+
 ## Installation
 
 1. Install the jsHarmony CMS Host, if not already installed
@@ -20,6 +24,8 @@ jsHarmony CMS Host
    ````
    Keep the program running.
    This will connect to the CMS server (in this case demo&period;site&period;jsharmony&period;com), and wait for files to get sent via publish.
+
+   If jsharmony-cms-host doesn't start, ensure the Node.js npm folder is in your system PATH variable.
 
    See below for additional command line parameters and flags.  User and password can be specified in the command line.
    

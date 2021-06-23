@@ -1,6 +1,6 @@
 {
   "name": "jsharmony-cms-host",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "jsHarmony CMS Deployment Target Host",
   "main": "index.js",
   "scripts": {
