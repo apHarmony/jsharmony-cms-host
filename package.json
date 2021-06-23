@@ -1,0 +1,45 @@
+{
+  "name": "jsharmony-cms-host",
+  "version": "1.0.1",
+  "description": "jsHarmony CMS Deployment Target Host",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apHarmony/jsharmony-cms-host"
+  },
+  "keywords": [
+    "jsHarmony",
+    "CMS",
+    "content",
+    "host",
+    "deployment",
+    "target",
+    "publish",
+    "publishing",
+    "JavaScript"
+  ],
+  "author": "apHarmony <contact@apharmony.com> (http://www.apharmony.com/)",
+  "license": "LGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/apHarmony/jsharmony-cms-host/issues"
+  },
+  "homepage": "https://github.com/apHarmony/jsharmony-cms-host",
+  "devDependencies": {
+    "mocha": "^7.2.0"
+  },
+  "dependencies": {
+    "async": "^2.6.2",
+    "cookie": "^0.3.1",
+    "form-data": "^2.3.3",
+    "lodash": "^4.17.19",
+    "moment": "^2.24.0",
+    "tmp": "^0.0.31",
+    "yauzl": "^2.10.0"
+  },
+  "bin": {
+    "jsharmony-cms-host": "./index.js"
+  }
+}
