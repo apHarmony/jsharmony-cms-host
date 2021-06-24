@@ -27,7 +27,7 @@ jsHarmony CMS Host
 
    If jsharmony-cms-host doesn't start, ensure the Node.js npm folder is in your system PATH variable.
 
-   See below for additional command line parameters and flags.  User and password can be specified in the command line.
+   See below for additional command line parameters and flags.  Username and password can be specified in the command line.
    
 4. Add a new Deployment Target, selecting the following options:
    ````
@@ -52,7 +52,7 @@ target_path   - Location where CMS files will be copied.  Use "." for current di
 
 The following options are available:
 
---user [username]            - CMS server login username
+--username [username]        - CMS server login username
 --password [password]        - CMS server login password
 --host-id [host_id]          - ID of the host, to be displayed in the CMS deployment wizard
                                  If not specified, current machine name will be used

@@ -40,7 +40,7 @@ var USAGE = "\r\n\
 \r\n\
   The following options are available:\r\n\
 \r\n\
-  --user [username]            - CMS server login username\r\n\
+  --username [username]        - CMS server login username\r\n\
   --password [password]        - CMS server login password\r\n\
   --host-id [host_id]          - ID of the host, to be displayed in the CMS deployment wizard\r\n\
                                    If not specified, current machine name will be used\r\n\
@@ -66,7 +66,7 @@ function jsHarmonyCMSHost(){
   {
     cms_url
     target_path
-    user
+    username
     password
     host_id
     log_path
@@ -91,12 +91,23 @@ function jsHarmonyCMSHost(){
       NetworkErrorDelay: 5000,
       login_cache_file: null,
     });
-    queue.onMessage = function(msg){
-      _this.deploy(queue, msg.deployment_id,
-        function () { msg.returnSuccess(); },
-        function (err) { msg.returnError(err); },
-        function (logtype, message) { msg.log(logtype, message); },
-      );
+    queue.onMessage = function(queueid, msg){
+      if(queueid.indexOf('deployment_host_publish_')==0){
+        _this.deploy(queue, msg.deployment_id,
+          function () { msg.returnSuccess(); },
+          function (err) { msg.returnError(err); },
+          function (logtype, message) { msg.log(logtype, message); },
+        );
+      }
+      else if(queueid.indexOf('deployment_host_request_')==0){
+        _this.handleRequest(queue, msg,
+          function () { msg.returnSuccess(); },
+          function (err) { msg.returnError(err); },
+        );
+      }
+      else {
+        _this.log.error('Unrecognized message: '+queueid+' - '+msg.toString());
+      }
     }
     queue.start(function(){
       _this.log('Host ID: '+params.host_id);
@@ -308,6 +319,59 @@ function jsHarmonyCMSHost(){
     });
   }
 
+  this.handleRequest = function(queue, msg, onSuccess, onFail){
+
+    //Respond to server with result
+    var requestId = msg.id;
+    platform.log('Processing request #'+requestId);
+    var body = msg.body || {};
+
+    if(body.op){
+      if(body.op=='download_templates'){
+        return _this.downloadTemplates(queue, requestId, body.urls, function(err){
+          if(err) return onFail(err);
+          return onSuccess();
+        });
+      }
+      else return onFail('Invalid operation');
+    }
+    return onFail('Invalid request');
+  }
+
+  this.downloadTemplates = function(queue, requestId, urls, cb){
+    if(!urls) urls = [];
+
+    var rsltTemplates = {};
+
+    async.each(urls, function(url, url_cb){
+      platform.log('Downloading template '+url);
+      wc.req(url, 'GET', {}, {}, undefined, function(err, res, templateContent){
+        if(err) return url_cb(err);
+        if(res && res.statusCode){
+          if(res.statusCode > 500) return url_cb(new Error(res.statusCode+' Error downloading template '+url));
+          if(res.statusCode > 400) return url_cb(new Error(res.statusCode+' Error downloading template '+url));
+        }
+        rsltTemplates[url] = templateContent;
+        return url_cb();
+      });
+    }, function(err){
+      var response_params = {};
+      if(err){
+        platform.log.error(err);
+        response_params.error = err.toString();
+      }
+      else response_params.body = JSON.stringify({urls: rsltTemplates});
+
+      platform.log('Sending '+(err?'error ':'success ')+'response #'+requestId);
+      wc.reqjson(_this.params.cms_url + '/_funcs/deployment_host/'+requestId+'/response', 'POST', response_params, queue.getHTTPHeader(), undefined, function (err, rslt, rsltjson, xres) {
+        if (xres && (xres.statusCode == 302)) return xlib.sys_error('Authentication token invalid or expired', platform);
+        if (err) return cb(err);
+        if (rsltjson && rsltjson._error) return cb(JSON.stringify(rsltjson._error));
+        return cb();
+      }, { platform: platform, nofollow: true, gzipRequest: true });
+    });
+  }
+
   this.log = function(msg){
     if(platform) platform.log(msg);
     else console.log(msg);
@@ -390,7 +454,8 @@ function jsHarmonyCMSHost(){
           _this.deploy(queue, params.download_deployment);
         }
         else {
-          queue.getQueue('deployment_host_'+params.host_id);
+          queue.getQueue('deployment_host_publish_'+params.host_id);
+          queue.getQueue('deployment_host_request_'+params.host_id);
         }
       });
     });
@@ -414,7 +479,7 @@ function jsHarmonyCMSHost(){
 
     while(args.length > 0){
       var arg = args.shift();
-      if(arg=='--user'){ if(args.length === 0){ throw new Error('Missing expected argument [username]'); } params.username = args.shift(); }
+      if(arg=='--username'){ if(args.length === 0){ throw new Error('Missing expected argument [username]'); } params.username = args.shift(); }
       else if(arg=='--password'){ if(args.length === 0){ throw new Error('Missing expected argument [password]'); } params.password = args.shift(); }
       else if(arg=='--host-id'){ if(args.length === 0){ throw new Error('Missing expected argument [host_id]'); } params.host_id = args.shift(); }
       else if(arg=='--log'){ if(args.length === 0){ throw new Error('Missing expected argument [log_path]'); } params.log_path = args.shift(); }
