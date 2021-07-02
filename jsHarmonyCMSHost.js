@@ -54,6 +54,7 @@ var USAGE = "\r\n\
                                    /folder/  (folder in root)\r\n\
                                    /file.txt (file.txt in root)\r\n\
   --download [deployment_id]   - Download an individual deployment\r\n\
+  --poll-interval [seconds]    - Seconds between polling (default 30)\r\n\
 ";
 
 
@@ -90,6 +91,7 @@ function jsHarmonyCMSHost(){
       jsHarmonyURL: params.cms_url,
       NetworkErrorDelay: 5000,
       login_cache_file: null,
+      poll_interval: ('poll_interval' in params) ? params.poll_interval : 30000,
     });
     queue.onMessage = function(queueid, msg){
       if(queueid.indexOf('deployment_host_publish_')==0){
@@ -418,6 +420,14 @@ function jsHarmonyCMSHost(){
     }
     platform.log = new Logger(platform);
 
+    if(params.poll_interval){
+      if(parseInt(params.poll_interval).toString() != params.poll_interval){
+        console.log('Invalid value for poll-interval');
+        return;
+      }
+      params.poll_interval = parseInt(params.poll_interval)*1000;
+    }
+
     //Ignore paths
     if(!params.ignore_path) params.ignore_path = [];
     for(var i=0;i<params.ignore_path.length;i++){
@@ -492,6 +502,7 @@ function jsHarmonyCMSHost(){
         params.ignore_path.push(args.shift());
       }
       else if(arg=='--download'){ if(args.length === 0){ throw new Error('Missing expected argument [deployment_id]'); } params.download_deployment = args.shift(); }
+      else if(arg=='--poll-interval'){ if(args.length === 0){ throw new Error('Missing expected argument [seconds]'); } params.poll_interval = args.shift(); }
       else throw new Error('Unexpected command line argument: '+arg);
     }
     
