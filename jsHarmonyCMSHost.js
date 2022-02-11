@@ -22,6 +22,7 @@ var Logger = require('./lib/Logger.js');
 var Helper = require('./lib/Helper.js');
 var WebConnect = require('./lib/WebConnect.js');
 var wc = new WebConnect.WebConnect();
+var xlib = WebConnect.xlib;
 var path = require('path');
 var os = require('os');
 var fs = require('fs');
@@ -110,13 +111,13 @@ function jsHarmonyCMSHost(){
       else {
         _this.log.error('Unrecognized message: '+queueid+' - '+msg.toString());
       }
-    }
+    };
     queue.start(function(){
       _this.log('Host ID: '+params.host_id);
       _this.log('CMS Host Connected');
       if(onConnect) onConnect(queue);
     });
-  }
+  };
 
   this.ignorePath = function(fname){
     if(!fname) return false;
@@ -144,12 +145,12 @@ function jsHarmonyCMSHost(){
       }
     }
     return false;
-  }
+  };
 
   this.deploy = function(queue, deployment_id, onSuccess, onFail, remoteLog){
-    if(!remoteLog) remoteLog = function(logtype, message){ platform.log(message); queue.log(deployment_id, logtype, (message?message.toString():null)); }
-    if(!onSuccess) onSuccess = function(){ remoteLog('info', 'CMS Deployment Host publish complete'); }
-    if(!onFail) onFail = function(err){ remoteLog('error', 'CMS Deployment Host publish failed: '+err.toString()); }
+    if(!remoteLog) remoteLog = function(logtype, message){ platform.log(message); queue.log(deployment_id, logtype, (message?message.toString():null)); };
+    if(!onSuccess) onSuccess = function(){ remoteLog('info', 'CMS Deployment Host publish complete'); };
+    if(!onFail) onFail = function(err){ remoteLog('error', 'CMS Deployment Host publish failed: '+err.toString()); };
 
     platform.log('Starting Deployment #'+deployment_id);
 
@@ -290,7 +291,7 @@ function jsHarmonyCMSHost(){
           var folderName = path.dirname(fname);
           while(folderName && (folderName != '.') && !(folderName in deleteFoldersIdx)){
             deleteFolders.push(folderName);
-            deleteFoldersIdx[folderName] = true; 
+            deleteFoldersIdx[folderName] = true;
             folderName = path.dirname(folderName);
           }
         });
@@ -319,7 +320,7 @@ function jsHarmonyCMSHost(){
       if(err) return onFail(err);
       return onSuccess();
     });
-  }
+  };
 
   this.handleRequest = function(queue, msg, onSuccess, onFail){
 
@@ -338,7 +339,7 @@ function jsHarmonyCMSHost(){
       else return onFail('Invalid operation');
     }
     return onFail('Invalid request');
-  }
+  };
 
   this.downloadTemplates = function(queue, requestId, urls, cb){
     if(!urls) urls = [];
@@ -372,12 +373,12 @@ function jsHarmonyCMSHost(){
         return cb();
       }, { platform: platform, nofollow: true, gzipRequest: true });
     });
-  }
+  };
 
   this.log = function(msg){
     if(platform) platform.log(msg);
     else console.log(msg);
-  }
+  };
 
   this.cli = function(){
     process.on('SIGINT', function() {
@@ -386,7 +387,7 @@ function jsHarmonyCMSHost(){
 
     var params = null;
     try{
-      var params = _this.cli_parse_params();
+      params = _this.cli_parse_params();
     }
     catch(ex){
       console.log(ex.toString());
@@ -469,12 +470,11 @@ function jsHarmonyCMSHost(){
         }
       });
     });
-  }
+  };
 
   this.cli_parse_params = function(){
     var args = [];
     var i = 0;
-    var cmd = '';
     var params = { };
   
     process.argv.forEach(function (val, index, array) {
@@ -507,11 +507,11 @@ function jsHarmonyCMSHost(){
     }
     
     return params;
-  }
+  };
 
   this.cli_usage = function(){
     console.log(USAGE);
-  }
+  };
 }
 
 (new jsHarmonyCMSHost()).cli();

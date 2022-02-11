@@ -1,6 +1,6 @@
 {
   "name": "jsharmony-cms-host",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "jsHarmony CMS Deployment Target Host",
   "main": "index.js",
   "scripts": {
@@ -33,7 +33,6 @@
   "dependencies": {
     "async": "^2.6.2",
     "cookie": "^0.3.1",
-    "form-data": "^2.3.3",
     "lodash": "^4.17.19",
     "moment": "^2.24.0",
     "tmp": "^0.0.31",
